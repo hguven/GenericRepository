@@ -1,0 +1,56 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenericRepository", "src\GenericRepository\GenericRepository.csproj", "{E84FD26D-1670-4EB7-97AC-5501E0ED85FD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{1723F543-EA5C-4397-9ED7-57C391ED2A94}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenericRepository.EntityFramework", "src\GenericRepository.EntityFramework\GenericRepository.EntityFramework.csproj", "{06C14AB3-FE2A-4119-89DF-70E7C410A8FF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{0FA9D119-36B3-4EA6-B4AA-289B5D0AE591}"
+	ProjectSection(SolutionItems) = preProject
+		scripts\GenericRepository.msbuild = scripts\GenericRepository.msbuild
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{2B2D98B0-15AE-4EE2-91EE-E961D28B958F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenericRepository.Test", "tests\GenericRepository.Test\GenericRepository.Test.csproj", "{D3822597-788D-4B72-9CC4-B8BCE4D36F61}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenericRepository.UnitTests", "GenericRepository.UnitTests\GenericRepository.UnitTests.csproj", "{5223EC41-B6D5-4D4D-A2FF-8FA5AF2BE2A1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E84FD26D-1670-4EB7-97AC-5501E0ED85FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E84FD26D-1670-4EB7-97AC-5501E0ED85FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E84FD26D-1670-4EB7-97AC-5501E0ED85FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E84FD26D-1670-4EB7-97AC-5501E0ED85FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06C14AB3-FE2A-4119-89DF-70E7C410A8FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06C14AB3-FE2A-4119-89DF-70E7C410A8FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06C14AB3-FE2A-4119-89DF-70E7C410A8FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06C14AB3-FE2A-4119-89DF-70E7C410A8FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3822597-788D-4B72-9CC4-B8BCE4D36F61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3822597-788D-4B72-9CC4-B8BCE4D36F61}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3822597-788D-4B72-9CC4-B8BCE4D36F61}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3822597-788D-4B72-9CC4-B8BCE4D36F61}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5223EC41-B6D5-4D4D-A2FF-8FA5AF2BE2A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5223EC41-B6D5-4D4D-A2FF-8FA5AF2BE2A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5223EC41-B6D5-4D4D-A2FF-8FA5AF2BE2A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5223EC41-B6D5-4D4D-A2FF-8FA5AF2BE2A1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D3822597-788D-4B72-9CC4-B8BCE4D36F61} = {2B2D98B0-15AE-4EE2-91EE-E961D28B958F}
+		{5223EC41-B6D5-4D4D-A2FF-8FA5AF2BE2A1} = {2B2D98B0-15AE-4EE2-91EE-E961D28B958F}
+	EndGlobalSection
+EndGlobal
