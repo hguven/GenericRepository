@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Linq;
 using System.Threading.Tasks;
-
+// Entity Framework 6 to support async methods
 namespace GenericRepository.EntityFramework
 {
 
