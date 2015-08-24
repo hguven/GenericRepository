@@ -133,6 +133,23 @@ namespace GenericRepository.EntityFramework {
         {
             return await _dbContext.Set<TEntity>().ToListAsync();
         }
+        public async Task<ICollection<TEntity>> GetAllIncludingAsync(params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            var queryable = GetAll();
+            foreach (Expression<Func<TEntity, object>> includeProperty in includeProperties)
+            {
+
+                queryable = queryable.Include<TEntity, object>(includeProperty);
+            }
+            return await queryable.ToListAsync();
+        }
+
+        public Task<TEntity> GetSingleIncludingAsync(TId id, params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            IQueryable<TEntity> entities = GetAllIncluding(includeProperties);
+            Task<TEntity> entity = Filter<TId>(entities, x => x.Id, id).FirstOrDefaultAsync();
+            return entity;
+        }
 
         public async Task<TEntity> GetAsync(TId id)
         {
