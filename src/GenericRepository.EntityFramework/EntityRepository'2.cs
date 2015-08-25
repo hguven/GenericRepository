@@ -129,13 +129,23 @@ namespace GenericRepository.EntityFramework {
             return await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<ICollection<TEntity>> GetAllAsync()
+        public async Task<List<TEntity>> GetAllAsync()
         {
             return await _dbContext.Set<TEntity>().ToListAsync();
         }
-        public async Task<ICollection<TEntity>> GetAllIncludingAsync(params Expression<Func<TEntity, object>>[] includeProperties)
+        public async Task<List<TEntity>> GetAllIncludingAsync(params Expression<Func<TEntity, object>>[] includeProperties)
         {
             var queryable = GetAll();
+            foreach (Expression<Func<TEntity, object>> includeProperty in includeProperties)
+            {
+
+                queryable = queryable.Include<TEntity, object>(includeProperty);
+            }
+            return await queryable.ToListAsync();
+        }
+        public async Task<List<TEntity>> FindAllIncludingAsync(Expression<Func<TEntity, bool>> match, params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            var queryable = _dbContext.Set<TEntity>().Where(match);
             foreach (Expression<Func<TEntity, object>> includeProperty in includeProperties)
             {
 
@@ -161,7 +171,7 @@ namespace GenericRepository.EntityFramework {
             return await _dbContext.Set<TEntity>().SingleOrDefaultAsync(match);
         }
 
-        public async Task<ICollection<TEntity>> FindAllAsync(Expression<Func<TEntity, bool>> match)
+        public async Task<List<TEntity>> FindAllAsync(Expression<Func<TEntity, bool>> match)
         {
             return await _dbContext.Set<TEntity>().Where(match).ToListAsync();
         }
