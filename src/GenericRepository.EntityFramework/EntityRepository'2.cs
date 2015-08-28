@@ -161,6 +161,13 @@ namespace GenericRepository.EntityFramework {
             return _dbContext.Set<TEntity>().Count<TEntity>(predicate) > 0;
         }
 
+        public void Delete(Expression<Func<TEntity, bool>> predicate)
+        {
+            var objects = FindBy(predicate);
+            foreach (var obj in objects)
+                _dbContext.Set<TEntity>().Remove(obj);
+        }
+
         public void ExecuteProcedure(string procedureCommand, params SqlParameter[] sqlParams)
         {
             ((EntitiesContext)_dbContext).Database.ExecuteSqlCommand(procedureCommand, sqlParams);

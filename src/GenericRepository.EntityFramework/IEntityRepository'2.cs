@@ -54,7 +54,7 @@ namespace GenericRepository.EntityFramework
                                                                           includeProperties);
 
         bool Contains(Expression<Func<TEntity, bool>> predicate);
-
+        void Delete(Expression<Func<TEntity, bool>> predicate);
 
         /// <summary>
         /// Executes the procedure.
