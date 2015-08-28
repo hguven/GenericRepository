@@ -145,6 +145,13 @@ namespace GenericRepository.EntityFramework {
             }
             return await queryable.ToListAsync();
         }
+
+        public async Task<TEntity> GetSingleAsync(TId id)
+        {
+            TEntity existing = await _dbContext.Set<TEntity>().FirstOrDefaultAsync(x => Equals(x.Id, id));
+            return existing;
+        }
+
         public async Task<List<TEntity>> FindAllIncludingAsync(Expression<Func<TEntity, bool>> match, params Expression<Func<TEntity, object>>[] includeProperties)
         {
             var queryable = _dbContext.Set<TEntity>().Where(match);

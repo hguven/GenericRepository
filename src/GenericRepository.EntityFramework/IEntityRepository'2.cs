@@ -46,6 +46,7 @@ namespace GenericRepository.EntityFramework
         Task<TEntity> AddAsync(TEntity t);
         Task<TEntity> EditAsync(TEntity updated, TId id);
         Task<List<TEntity>> GetAllIncludingAsync(params Expression<Func<TEntity, object>>[] includeProperties);
+        Task<TEntity> GetSingleAsync(TId id);
         Task<TEntity> GetSingleIncludingAsync(TId id, params Expression<Func<TEntity, object>>[] includeProperties);
         int Count();
         Task<int> CountAsync();
