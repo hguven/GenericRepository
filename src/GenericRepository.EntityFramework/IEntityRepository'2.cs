@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq.Expressions;
 using System.Linq;
 using System.Threading.Tasks;
@@ -51,6 +52,16 @@ namespace GenericRepository.EntityFramework
         Task<List<TEntity>> FindAllIncludingAsync(Expression<Func<TEntity, bool>> match,
                                                                       params Expression<Func<TEntity, object>>[]
                                                                           includeProperties);
+
+        bool Contains(Expression<Func<TEntity, bool>> predicate);
+
+
+        /// <summary>
+        /// Executes the procedure.
+        /// </summary>
+        /// <param name="procedureCommand">The procedure command.</param>
+        /// <param name="sqlParams">The SQL params.</param>
+        void ExecuteProcedure(String procedureCommand, params SqlParameter[] sqlParams);
 
 
     }

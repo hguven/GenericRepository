@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -28,12 +29,13 @@ namespace GenericRepository.EntityFramework {
 
             _dbContext = dbContext;
         }
+      
 
         public IQueryable<TEntity> GetAll() {
 
             return _dbContext.Set<TEntity>();
         }
-
+       
         public IQueryable<TEntity> GetAllIncluding(params Expression<Func<TEntity, object>>[] includeProperties) {
 
             IQueryable<TEntity> queryable = GetAll();
@@ -154,6 +156,17 @@ namespace GenericRepository.EntityFramework {
             return await queryable.ToListAsync();
         }
 
+        public bool Contains(Expression<Func<TEntity, bool>> predicate)
+        {
+            return _dbContext.Set<TEntity>().Count<TEntity>(predicate) > 0;
+        }
+
+        public void ExecuteProcedure(string procedureCommand, params SqlParameter[] sqlParams)
+        {
+            ((EntitiesContext)_dbContext).Database.ExecuteSqlCommand(procedureCommand, sqlParams);
+        }
+
+
         public Task<TEntity> GetSingleIncludingAsync(TId id, params Expression<Func<TEntity, object>>[] includeProperties)
         {
             IQueryable<TEntity> entities = GetAllIncluding(includeProperties);
@@ -171,6 +184,7 @@ namespace GenericRepository.EntityFramework {
             return await _dbContext.Set<TEntity>().SingleOrDefaultAsync(match);
         }
 
+       
         public async Task<List<TEntity>> FindAllAsync(Expression<Func<TEntity, bool>> match)
         {
             return await _dbContext.Set<TEntity>().Where(match).ToListAsync();
@@ -206,7 +220,7 @@ namespace GenericRepository.EntityFramework {
         {
             return await _dbContext.Set<TEntity>().CountAsync();
         }
-
+         
         // Privates
 
         private PaginatedList<TEntity> Paginate<TKey>(int pageIndex, int pageSize, Expression<Func<TEntity, TKey>> keySelector, Expression<Func<TEntity, bool>> predicate, OrderByType orderByType, params Expression<Func<TEntity, object>>[] includeProperties) {
@@ -240,6 +254,7 @@ namespace GenericRepository.EntityFramework {
 
             return dbSet.Where(lambda);
         }
+       
 
         private enum OrderByType {
 
