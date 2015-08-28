@@ -135,13 +135,18 @@ namespace GenericRepository.EntityFramework {
         {
             return await _dbContext.Set<TEntity>().ToListAsync();
         }
-        public async Task<List<TEntity>> GetAllIncludingAsync(params Expression<Func<TEntity, object>>[] includeProperties)
+        public async Task<List<TEntity>> GetAllIncludingAsync(int ? take, params Expression<Func<TEntity, object>>[] includeProperties)
         {
             var queryable = GetAll();
             foreach (Expression<Func<TEntity, object>> includeProperty in includeProperties)
             {
 
                 queryable = queryable.Include<TEntity, object>(includeProperty);
+            }
+
+            if (take.HasValue && take.Value > 0)
+            {
+                queryable = queryable.Take(take.Value);
             }
             return await queryable.ToListAsync();
         }
@@ -153,13 +158,17 @@ namespace GenericRepository.EntityFramework {
             return await entity;
         }
 
-        public async Task<List<TEntity>> FindAllIncludingAsync(Expression<Func<TEntity, bool>> match, params Expression<Func<TEntity, object>>[] includeProperties)
+        public async Task<List<TEntity>> FindAllIncludingAsync(Expression<Func<TEntity, bool>> match, int ? take, params Expression<Func<TEntity, object>>[] includeProperties)
         {
             var queryable = _dbContext.Set<TEntity>().Where(match);
             foreach (Expression<Func<TEntity, object>> includeProperty in includeProperties)
             {
 
                 queryable = queryable.Include<TEntity, object>(includeProperty);
+            }
+            if (take.HasValue && take.Value > 0)
+            {
+                queryable = queryable.Take(take.Value);
             }
             return await queryable.ToListAsync();
         }
