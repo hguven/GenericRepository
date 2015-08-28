@@ -148,8 +148,9 @@ namespace GenericRepository.EntityFramework {
 
         public async Task<TEntity> GetSingleAsync(TId id)
         {
-            TEntity existing = await _dbContext.Set<TEntity>().FirstOrDefaultAsync(x => Equals(x.Id, id));
-            return existing;
+            IQueryable<TEntity> entities = GetAll();
+            var entity = Filter<TId>(entities, x => x.Id, id).FirstOrDefaultAsync();
+            return await entity;
         }
 
         public async Task<List<TEntity>> FindAllIncludingAsync(Expression<Func<TEntity, bool>> match, params Expression<Func<TEntity, object>>[] includeProperties)
@@ -187,12 +188,7 @@ namespace GenericRepository.EntityFramework {
             Task<TEntity> entity = Filter<TId>(entities, x => x.Id, id).FirstOrDefaultAsync();
             return entity;
         }
-
-        public async Task<TEntity> GetAsync(TId id)
-        {
-            return await _dbContext.Set<TEntity>().FirstOrDefaultAsync(x => Equals(x.Id, id));
-        }
-
+ 
         public async Task<TEntity> FindAsync(Expression<Func<TEntity, bool>> match)
         {
             return await _dbContext.Set<TEntity>().SingleOrDefaultAsync(match);

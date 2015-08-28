@@ -40,7 +40,6 @@ namespace GenericRepository.EntityFramework
         int Save();
         Task<int> DeleteAsync(TEntity entity);
         Task<List<TEntity>> GetAllAsync();
-        Task<TEntity> GetAsync(TId id);
         Task<TEntity> FindAsync(Expression<Func<TEntity, bool>> match);
         Task<List<TEntity>> FindAllAsync(Expression<Func<TEntity, bool>> match);
         Task<TEntity> AddAsync(TEntity t);
