@@ -200,13 +200,20 @@ namespace GenericRepository.EntityFramework {
  
         public async Task<TEntity> FindAsync(Expression<Func<TEntity, bool>> match)
         {
+
+
             return await _dbContext.Set<TEntity>().SingleOrDefaultAsync(match);
         }
 
-       
-        public async Task<List<TEntity>> FindAllAsync(Expression<Func<TEntity, bool>> match)
+
+        public async Task<List<TEntity>> FindAllAsync(Expression<Func<TEntity, bool>> match, int? take)
         {
-            return await _dbContext.Set<TEntity>().Where(match).ToListAsync();
+            var queryable = _dbContext.Set<TEntity>().Where(match);
+            if (take.HasValue && take.Value > 0)
+            {
+                queryable = queryable.Take(take.Value);
+            }
+            return await queryable.ToListAsync();
         }
 
         public async Task<TEntity> AddAsync(TEntity t)
