@@ -6,40 +6,48 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
+using GenericRepository.EntityFramework.Enums;
 
-namespace GenericRepository.EntityFramework {
-    
+namespace GenericRepository.EntityFramework
+{
+
     /// <summary>
     /// IEntityRepository implementation for DbContext instance.
     /// </summary>
     /// <typeparam name="TEntity">Type of entity</typeparam>
     /// <typeparam name="TId">Type of entity Id</typeparam>
-    public class EntityRepository<TEntity, TId> : IEntityRepository<TEntity, TId> 
+    public class EntityRepository<TEntity, TId> : IEntityRepository<TEntity, TId>
         where TEntity : class, IEntity<TId>
-        where TId : IComparable {
+        where TId : IComparable
+    {
 
         private readonly IEntitiesContext _dbContext;
 
-        public EntityRepository(IEntitiesContext dbContext) {
+        public EntityRepository(IEntitiesContext dbContext)
+        {
 
-            if (dbContext == null) {
+            if (dbContext == null)
+            {
 
                 throw new ArgumentNullException("dbContext");
             }
 
             _dbContext = dbContext;
         }
-      
 
-        public IQueryable<TEntity> GetAll() {
+
+        public IQueryable<TEntity> GetAll()
+        {
 
             return _dbContext.Set<TEntity>();
         }
-       
-        public IQueryable<TEntity> GetAllIncluding(params Expression<Func<TEntity, object>>[] includeProperties) {
+
+        public IQueryable<TEntity> GetAllIncluding(params Expression<Func<TEntity, object>>[] includeProperties)
+        {
 
             IQueryable<TEntity> queryable = GetAll();
-            foreach (Expression<Func<TEntity, object>> includeProperty in includeProperties) {
+            foreach (Expression<Func<TEntity, object>> includeProperty in includeProperties)
+            {
 
                 queryable = queryable.Include<TEntity, object>(includeProperty);
             }
@@ -47,24 +55,28 @@ namespace GenericRepository.EntityFramework {
             return queryable;
         }
 
-        public IQueryable<TEntity> FindBy(Expression<Func<TEntity, bool>> predicate) {
+        public IQueryable<TEntity> FindBy(Expression<Func<TEntity, bool>> predicate)
+        {
 
             IQueryable<TEntity> queryable = GetAll().Where<TEntity>(predicate);
             return queryable;
         }
 
-        public PaginatedList<TEntity> Paginate(int pageIndex, int pageSize) {
+        public PaginatedList<TEntity> Paginate(int pageIndex, int pageSize)
+        {
 
             PaginatedList<TEntity> paginatedList = Paginate<TId>(pageIndex, pageSize, x => x.Id);
             return paginatedList;
         }
 
-        public PaginatedList<TEntity> Paginate<TKey>(int pageIndex, int pageSize, Expression<Func<TEntity, TKey>> keySelector) {
+        public PaginatedList<TEntity> Paginate<TKey>(int pageIndex, int pageSize, Expression<Func<TEntity, TKey>> keySelector)
+        {
 
             return Paginate<TKey>(pageIndex, pageSize, keySelector, null);
         }
 
-        public PaginatedList<TEntity> Paginate<TKey>(int pageIndex, int pageSize, Expression<Func<TEntity, TKey>> keySelector, Expression<Func<TEntity, bool>> predicate, params Expression<Func<TEntity, object>>[] includeProperties) {
+        public PaginatedList<TEntity> Paginate<TKey>(int pageIndex, int pageSize, Expression<Func<TEntity, TKey>> keySelector, Expression<Func<TEntity, bool>> predicate, params Expression<Func<TEntity, object>>[] includeProperties)
+        {
 
             PaginatedList<TEntity> paginatedList = Paginate<TKey>(
                 pageIndex, pageSize, keySelector, predicate, OrderByType.Ascending, includeProperties);
@@ -72,12 +84,14 @@ namespace GenericRepository.EntityFramework {
             return paginatedList;
         }
 
-        public PaginatedList<TEntity> PaginateDescending<TKey>(int pageIndex, int pageSize, Expression<Func<TEntity, TKey>> keySelector) {
+        public PaginatedList<TEntity> PaginateDescending<TKey>(int pageIndex, int pageSize, Expression<Func<TEntity, TKey>> keySelector)
+        {
 
             return PaginateDescending<TKey>(pageIndex, pageSize, keySelector, null);
         }
 
-        public PaginatedList<TEntity> PaginateDescending<TKey>(int pageIndex, int pageSize, Expression<Func<TEntity, TKey>> keySelector, Expression<Func<TEntity, bool>> predicate, params Expression<Func<TEntity, object>>[] includeProperties) {
+        public PaginatedList<TEntity> PaginateDescending<TKey>(int pageIndex, int pageSize, Expression<Func<TEntity, TKey>> keySelector, Expression<Func<TEntity, bool>> predicate, params Expression<Func<TEntity, object>>[] includeProperties)
+        {
 
             PaginatedList<TEntity> paginatedList = Paginate<TKey>(
                 pageIndex, pageSize, keySelector, predicate, OrderByType.Descending, includeProperties);
@@ -85,45 +99,52 @@ namespace GenericRepository.EntityFramework {
             return paginatedList;
         }
 
-        public TEntity GetSingle(TId id) {
+        public TEntity GetSingle(TId id)
+        {
 
             IQueryable<TEntity> entities = GetAll();
             TEntity entity = Filter<TId>(entities, x => x.Id, id).FirstOrDefault();
             return entity;
         }
 
-        public TEntity GetSingleIncluding(TId id, params Expression<Func<TEntity, object>>[] includeProperties) {
+        public TEntity GetSingleIncluding(TId id, params Expression<Func<TEntity, object>>[] includeProperties)
+        {
 
             IQueryable<TEntity> entities = GetAllIncluding(includeProperties);
             TEntity entity = Filter<TId>(entities, x => x.Id, id).FirstOrDefault();
             return entity;
         }
 
-        public void Add(TEntity entity) {
+        public void Add(TEntity entity)
+        {
 
             _dbContext.SetAsAdded(entity);
         }
 
-        public void AddGraph(TEntity entity) {
+        public void AddGraph(TEntity entity)
+        {
 
             _dbContext.Set<TEntity>().Add(entity);
         }
 
-        public void Edit(TEntity entity) {
+        public void Edit(TEntity entity)
+        {
 
             _dbContext.SetAsModified(entity);
         }
 
-        public void Delete(TEntity entity) {
+        public void Delete(TEntity entity)
+        {
 
             _dbContext.SetAsDeleted(entity);
         }
 
-        public int Save() {
+        public int Save()
+        {
 
             return _dbContext.SaveChanges();
         }
- 
+
 
         public async Task<int> DeleteAsync(TEntity t)
         {
@@ -135,18 +156,21 @@ namespace GenericRepository.EntityFramework {
         {
             return await _dbContext.Set<TEntity>().ToListAsync();
         }
-        public async Task<List<TEntity>> GetAllIncludingAsync(int ? take, params Expression<Func<TEntity, object>>[] includeProperties)
+        
+        
+        public async Task<List<TEntity>> GetAllIncludingAsync<TKey>(int page, int pageSize, Expression<Func<TEntity, TKey>> keySelector, OrderByType orderByType,
+                                               params Expression<Func<TEntity, object>>[] includeProperties)
         {
             var queryable = GetAll();
+            queryable = (orderByType == OrderByType.Ascending) ? queryable.OrderBy(keySelector) : queryable.OrderByDescending(keySelector);
             foreach (Expression<Func<TEntity, object>> includeProperty in includeProperties)
             {
-
                 queryable = queryable.Include<TEntity, object>(includeProperty);
             }
 
-            if (take.HasValue && take.Value > 0)
+            if (page > 0)
             {
-                queryable = queryable.Take(take.Value);
+                queryable = queryable.Skip(pageSize).Take(page);
             }
             return await queryable.ToListAsync();
         }
@@ -158,17 +182,22 @@ namespace GenericRepository.EntityFramework {
             return await entity;
         }
 
-        public async Task<List<TEntity>> FindAllIncludingAsync(Expression<Func<TEntity, bool>> match, int ? take, params Expression<Func<TEntity, object>>[] includeProperties)
+
+
+     
+
+        public async Task<List<TEntity>> FindAllIncludingAsync<TKey>(Expression<Func<TEntity, bool>> match, int page, int pageSize, Expression<Func<TEntity, TKey>> keySelector,
+                                                OrderByType orderByType, params Expression<Func<TEntity, object>>[] includeProperties)
         {
             var queryable = _dbContext.Set<TEntity>().Where(match);
+            queryable = (orderByType == OrderByType.Ascending) ? queryable.OrderBy(keySelector) : queryable.OrderByDescending(keySelector);
             foreach (Expression<Func<TEntity, object>> includeProperty in includeProperties)
             {
-
                 queryable = queryable.Include<TEntity, object>(includeProperty);
             }
-            if (take.HasValue && take.Value > 0)
+            if (page > 0)
             {
-                queryable = queryable.Take(take.Value);
+                queryable = queryable.Skip(pageSize).Take(page);
             }
             return await queryable.ToListAsync();
         }
@@ -197,12 +226,35 @@ namespace GenericRepository.EntityFramework {
             Task<TEntity> entity = Filter<TId>(entities, x => x.Id, id).FirstOrDefaultAsync();
             return entity;
         }
- 
+
         public async Task<TEntity> FindAsync(Expression<Func<TEntity, bool>> match)
         {
 
 
             return await _dbContext.Set<TEntity>().SingleOrDefaultAsync(match);
+        }
+
+        public async Task<List<TEntity>> FindAllAsync<TKey>(Expression<Func<TEntity, bool>> match, Expression<Func<TEntity, TKey>> keySelector, OrderByType orderByType, int? take)
+        {
+            var queryable = _dbContext.Set<TEntity>().Where(match);
+            queryable = (orderByType == OrderByType.Ascending) ? queryable.OrderBy(keySelector) : queryable.OrderByDescending(keySelector);
+            if (take.HasValue && take.Value > 0)
+            {
+                queryable = queryable.Take(take.Value);
+            }
+            return await queryable.ToListAsync();
+        }
+
+
+        public async Task<List<TEntity>> FindAllAsync<TKey>(Expression<Func<TEntity, bool>> match, Expression<Func<TEntity, TKey>> keySelector, OrderByType orderByType, int page, int pageSize)
+        {
+            var queryable = _dbContext.Set<TEntity>().Where(match);
+            queryable = (orderByType == OrderByType.Ascending) ? queryable.OrderBy(keySelector) : queryable.OrderByDescending(keySelector);
+            if (page > 0)
+            {
+                queryable = queryable.Skip(pageSize).Take(page);
+            }
+            return await queryable.ToListAsync();
         }
 
 
@@ -215,6 +267,7 @@ namespace GenericRepository.EntityFramework {
             }
             return await queryable.ToListAsync();
         }
+
 
         public async Task<TEntity> AddAsync(TEntity t)
         {
@@ -237,6 +290,23 @@ namespace GenericRepository.EntityFramework {
             return existing;
         }
 
+        public async Task<List<TEntity>> GetAllIncludingAsync<TKey>(int? take, Expression<Func<TEntity, TKey>> keySelector, OrderByType orderByType,
+                                               params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            var queryable = GetAll();
+            queryable = (orderByType == OrderByType.Ascending) ? queryable.OrderBy(keySelector) : queryable.OrderByDescending(keySelector);
+            foreach (Expression<Func<TEntity, object>> includeProperty in includeProperties)
+            {
+                queryable = queryable.Include<TEntity, object>(includeProperty);
+            }
+
+            if (take.HasValue && take.Value > 0)
+            {
+                queryable = queryable.Take(take.Value);
+            }
+            return await queryable.ToListAsync();
+        }
+
         public int Count()
         {
             return _dbContext.Set<TEntity>().Count();
@@ -246,10 +316,29 @@ namespace GenericRepository.EntityFramework {
         {
             return await _dbContext.Set<TEntity>().CountAsync();
         }
-         
+
+        public async Task<List<TEntity>> FindAllIncludingAsync<TKey>(Expression<Func<TEntity, bool>> match, int? take, Expression<Func<TEntity, TKey>> keySelector, OrderByType orderByType,
+                                                params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            var queryable = _dbContext.Set<TEntity>().Where(match);
+            queryable = (orderByType == OrderByType.Ascending) ? queryable.OrderBy(keySelector) : queryable.OrderByDescending(keySelector);
+
+            foreach (Expression<Func<TEntity, object>> includeProperty in includeProperties)
+            {
+
+                queryable = queryable.Include<TEntity, object>(includeProperty);
+            }
+            if (take.HasValue && take.Value > 0)
+            {
+                queryable = queryable.Take(take.Value);
+            }
+            return await queryable.ToListAsync();
+        }
+
         // Privates
 
-        private PaginatedList<TEntity> Paginate<TKey>(int pageIndex, int pageSize, Expression<Func<TEntity, TKey>> keySelector, Expression<Func<TEntity, bool>> predicate, OrderByType orderByType, params Expression<Func<TEntity, object>>[] includeProperties) {
+        private PaginatedList<TEntity> Paginate<TKey>(int pageIndex, int pageSize, Expression<Func<TEntity, TKey>> keySelector, Expression<Func<TEntity, bool>> predicate, OrderByType orderByType, params Expression<Func<TEntity, object>>[] includeProperties)
+        {
 
             IQueryable<TEntity> queryable =
                 (orderByType == OrderByType.Ascending)
@@ -262,12 +351,14 @@ namespace GenericRepository.EntityFramework {
             return paginatedList;
         }
 
-        private IQueryable<TEntity> Filter<TProperty>(IQueryable<TEntity> dbSet, 
+        private IQueryable<TEntity> Filter<TProperty>(IQueryable<TEntity> dbSet,
             Expression<Func<TEntity, TProperty>> property, TProperty value)
-            where TProperty : IComparable {
+            where TProperty : IComparable
+        {
 
             var memberExpression = property.Body as MemberExpression;
-            if (memberExpression == null || !(memberExpression.Member is PropertyInfo)) {
+            if (memberExpression == null || !(memberExpression.Member is PropertyInfo))
+            {
 
                 throw new ArgumentException("Property expected", "property");
             }
@@ -280,12 +371,9 @@ namespace GenericRepository.EntityFramework {
 
             return dbSet.Where(lambda);
         }
-       
 
-        private enum OrderByType {
 
-            Ascending,
-            Descending
-        }
+
+
     }
 }
