@@ -170,7 +170,9 @@ namespace GenericRepository.EntityFramework
 
             if (page > 0)
             {
-                queryable = queryable.Skip(pageSize).Take(page);
+                if (page == 0) page = 1;
+                int skip = (page - 1) * pageSize;
+                queryable = queryable.Skip(skip).Take(pageSize);
             }
             return await queryable.ToListAsync();
         }
@@ -197,7 +199,9 @@ namespace GenericRepository.EntityFramework
             }
             if (page > 0)
             {
-                queryable = queryable.Skip(pageSize).Take(page);
+                if (page == 0) page = 1;
+                int skip = (page - 1) * pageSize;
+                queryable = queryable.Skip(skip).Take(pageSize);
             }
             return await queryable.ToListAsync();
         }
@@ -252,7 +256,9 @@ namespace GenericRepository.EntityFramework
             queryable = (orderByType == OrderByType.Ascending) ? queryable.OrderBy(keySelector) : queryable.OrderByDescending(keySelector);
             if (page > 0)
             {
-                queryable = queryable.Skip(pageSize).Take(page);
+                if (page == 0) page = 1;
+                int skip = (page - 1) * pageSize;
+                queryable = queryable.Skip(skip).Take(pageSize);
             }
             return await queryable.ToListAsync();
         }
@@ -315,6 +321,16 @@ namespace GenericRepository.EntityFramework
         public async Task<int> CountAsync()
         {
             return await _dbContext.Set<TEntity>().CountAsync();
+        }
+
+        public int Count(Expression<Func<TEntity, bool>> match)
+        {
+            return _dbContext.Set<TEntity>().Where(match).Count();
+        }
+
+        public async Task<int> CountAsync(Expression<Func<TEntity, bool>> match)
+        {
+            return await _dbContext.Set<TEntity>().Where(match).CountAsync();
         }
 
         public async Task<List<TEntity>> FindAllIncludingAsync<TKey>(Expression<Func<TEntity, bool>> match, int? take, Expression<Func<TEntity, TKey>> keySelector, OrderByType orderByType,

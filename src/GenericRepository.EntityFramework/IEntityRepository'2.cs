@@ -53,6 +53,8 @@ namespace GenericRepository.EntityFramework
         Task<TEntity> GetSingleIncludingAsync(TId id,  params Expression<Func<TEntity, object>>[] includeProperties);
         int Count();
         Task<int> CountAsync();
+        int Count(Expression<Func<TEntity, bool>> match);
+        Task<int> CountAsync(Expression<Func<TEntity, bool>> match);
         Task<List<TEntity>> FindAllIncludingAsync<TKey>(Expression<Func<TEntity, bool>> match, int? take,Expression<Func<TEntity, TKey>> keySelector, OrderByType orderByType, params Expression<Func<TEntity, object>>[] includeProperties);
         Task<List<TEntity>> FindAllIncludingAsync<TKey>(Expression<Func<TEntity, bool>> match, int page, int pageSize, Expression<Func<TEntity, TKey>> keySelector,  OrderByType orderByType, params Expression<Func<TEntity, object>>[] includeProperties);
 
