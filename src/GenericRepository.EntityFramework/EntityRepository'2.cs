@@ -146,19 +146,19 @@ namespace GenericRepository.EntityFramework
         }
 
 
-        public Task<int> DeleteAsync(TEntity t)
+        public async Task<int> DeleteAsync(TEntity t)
         {
             _dbContext.Set<TEntity>().Remove(t);
-            return _dbContext.SaveChangesAsync();
+            return await _dbContext.SaveChangesAsync();
         }
 
-        public Task<List<TEntity>> GetAllAsync()
+        public async Task<List<TEntity>> GetAllAsync()
         {
-            return _dbContext.Set<TEntity>().ToListAsync();
+            return await GetAll().ToListAsync();
         }
 
 
-        public Task<List<TEntity>> GetAllIncludingAsync<TKey>(int page, int pageSize, Expression<Func<TEntity, TKey>> keySelector, OrderByType orderByType,
+        public async Task<List<TEntity>> GetAllIncludingAsync<TKey>(int page, int pageSize, Expression<Func<TEntity, TKey>> keySelector, OrderByType orderByType,
                                                params Expression<Func<TEntity, object>>[] includeProperties)
         {
             var queryable = GetAll();
@@ -174,35 +174,35 @@ namespace GenericRepository.EntityFramework
                 int skip = (page - 1) * pageSize;
                 queryable = queryable.Skip(skip).Take(pageSize);
             }
-            return queryable.ToListAsync();
+            return await queryable.ToListAsync();
         }
 
-        public Task<TEntity> GetSingleAsync(TId id)
+        public async Task<TEntity> GetSingleAsync(TId id)
         {
             IQueryable<TEntity> entities = GetAll();
-            var entity = Filter<TId>(entities, x => x.Id, id).FirstOrDefaultAsync();
+            var entity = await Filter<TId>(entities, x => x.Id, id).FirstOrDefaultAsync();
             return entity;
         }
 
-        public Task<TEntity> GetFirstAsync<TKey>(Expression<Func<TEntity, bool>> match, Expression<Func<TEntity, TKey>> keySelector, OrderByType orderByType)
+        public async Task<TEntity> GetFirstAsync<TKey>(Expression<Func<TEntity, bool>> match, Expression<Func<TEntity, TKey>> keySelector, OrderByType orderByType)
         {
-            var queryable = _dbContext.Set<TEntity>().Where(match);
+            var queryable = FindBy(match);
             queryable = (orderByType == OrderByType.Ascending) ? queryable.OrderBy(keySelector) : queryable.OrderByDescending(keySelector);
-            return queryable.FirstOrDefaultAsync();
+            return await queryable.FirstOrDefaultAsync();
         }
 
-        public Task<TEntity> GetFirstAsync<TKey>(Expression<Func<TEntity, TKey>> keySelector, OrderByType orderByType)
+        public async Task<TEntity> GetFirstAsync<TKey>(Expression<Func<TEntity, TKey>> keySelector, OrderByType orderByType)
         {
             var queryable = GetAll();
             queryable = (orderByType == OrderByType.Ascending) ? queryable.OrderBy(keySelector) : queryable.OrderByDescending(keySelector);
-            return queryable.FirstOrDefaultAsync();
+            return await queryable.FirstOrDefaultAsync();
         }
 
 
-        public Task<List<TEntity>> FindAllIncludingAsync<TKey>(Expression<Func<TEntity, bool>> match, int page, int pageSize, Expression<Func<TEntity, TKey>> keySelector,
+        public async Task<List<TEntity>> FindAllIncludingAsync<TKey>(Expression<Func<TEntity, bool>> match, int page, int pageSize, Expression<Func<TEntity, TKey>> keySelector,
                                                 OrderByType orderByType, params Expression<Func<TEntity, object>>[] includeProperties)
         {
-            var queryable = _dbContext.Set<TEntity>().Where(match);
+            var queryable = FindBy(match);
             queryable = (orderByType == OrderByType.Ascending) ? queryable.OrderBy(keySelector) : queryable.OrderByDescending(keySelector);
             foreach (Expression<Func<TEntity, object>> includeProperty in includeProperties)
             {
@@ -214,12 +214,12 @@ namespace GenericRepository.EntityFramework
                 int skip = (page - 1) * pageSize;
                 queryable = queryable.Skip(skip).Take(pageSize);
             }
-            return queryable.ToListAsync();
+            return await queryable.ToListAsync();
         }
 
         public bool Contains(Expression<Func<TEntity, bool>> predicate)
         {
-            return _dbContext.Set<TEntity>().Count<TEntity>(predicate) > 0;
+            return GetAll().Count<TEntity>(predicate) > 0;
         }
 
         public void Delete(Expression<Func<TEntity, bool>> predicate)
@@ -235,23 +235,21 @@ namespace GenericRepository.EntityFramework
         }
 
 
-        public Task<TEntity> GetSingleIncludingAsync(TId id, params Expression<Func<TEntity, object>>[] includeProperties)
+        public async Task<TEntity> GetSingleIncludingAsync(TId id, params Expression<Func<TEntity, object>>[] includeProperties)
         {
             IQueryable<TEntity> entities = GetAllIncluding(includeProperties);
-            Task<TEntity> entity = Filter<TId>(entities, x => x.Id, id).FirstOrDefaultAsync();
+            var entity = await Filter<TId>(entities, x => x.Id, id).FirstOrDefaultAsync();
             return entity;
         }
 
-        public Task<TEntity> FindAsync(Expression<Func<TEntity, bool>> match)
+        public async Task<TEntity> FindAsync(Expression<Func<TEntity, bool>> match)
         {
-
-
-            return _dbContext.Set<TEntity>().SingleOrDefaultAsync(match);
+            return await GetAll().SingleOrDefaultAsync(match);
         }
 
-        public Task<List<TEntity>> FindAllAsync<TKey>(Expression<Func<TEntity, bool>> match, Expression<Func<TEntity, TKey>> keySelector, OrderByType orderByType, int? take, int? skip)
+        public async Task<List<TEntity>> FindAllAsync<TKey>(Expression<Func<TEntity, bool>> match, Expression<Func<TEntity, TKey>> keySelector, OrderByType orderByType, int? take, int? skip)
         {
-            var queryable = _dbContext.Set<TEntity>().Where(match);
+            var queryable = FindBy(match);
             queryable = (orderByType == OrderByType.Ascending) ? queryable.OrderBy(keySelector) : queryable.OrderByDescending(keySelector);
             if (skip.HasValue && skip.Value > 0)
             {
@@ -261,13 +259,13 @@ namespace GenericRepository.EntityFramework
             {
                 queryable = queryable.Take(take.Value);
             }
-            return queryable.ToListAsync();
+            return await queryable.ToListAsync();
         }
 
 
-        public Task<List<TEntity>> FindAllAsync<TKey>(Expression<Func<TEntity, bool>> match, Expression<Func<TEntity, TKey>> keySelector, OrderByType orderByType, int page, int pageSize)
+        public async Task<List<TEntity>> FindAllAsync<TKey>(Expression<Func<TEntity, bool>> match, Expression<Func<TEntity, TKey>> keySelector, OrderByType orderByType, int page, int pageSize)
         {
-            var queryable = _dbContext.Set<TEntity>().Where(match);
+            var queryable = FindBy(match);
             queryable = (orderByType == OrderByType.Ascending) ? queryable.OrderBy(keySelector) : queryable.OrderByDescending(keySelector);
             if (page > 0)
             {
@@ -275,13 +273,13 @@ namespace GenericRepository.EntityFramework
                 int skip = (page - 1) * pageSize;
                 queryable = queryable.Skip(skip).Take(pageSize);
             }
-            return queryable.ToListAsync();
+            return await queryable.ToListAsync();
         }
 
 
-        public Task<List<TEntity>> FindAllAsync(Expression<Func<TEntity, bool>> match, int? take, int? skip)
+        public async Task<List<TEntity>> FindAllAsync(Expression<Func<TEntity, bool>> match, int? take, int? skip)
         {
-            var queryable = _dbContext.Set<TEntity>().Where(match);
+            var queryable = FindBy(match);
             if (skip.HasValue && skip.Value > 0)
             {
                 queryable = queryable.Skip(skip.Value);
@@ -290,7 +288,7 @@ namespace GenericRepository.EntityFramework
             {
                 queryable = queryable.Take(take.Value);
             }
-            return queryable.ToListAsync();
+            return await queryable.ToListAsync();
         }
 
 
@@ -306,7 +304,7 @@ namespace GenericRepository.EntityFramework
             if (updated == null)
                 return null;
 
-            TEntity existing = await _dbContext.Set<TEntity>().FirstOrDefaultAsync(x => Equals(x.Id, id));
+            TEntity existing = await GetAll().FirstOrDefaultAsync(x => Equals(x.Id, id));
             if (existing != null)
             {
                 _dbContext.Entry(existing).CurrentValues.SetValues(updated);
@@ -315,7 +313,7 @@ namespace GenericRepository.EntityFramework
             return existing;
         }
 
-        public Task<List<TEntity>> GetAllIncludingAsync<TKey>(int? take, int? skip, Expression<Func<TEntity, TKey>> keySelector, OrderByType orderByType,
+        public async Task<List<TEntity>> GetAllIncludingAsync<TKey>(int? take, int? skip, Expression<Func<TEntity, TKey>> keySelector, OrderByType orderByType,
                                                params Expression<Func<TEntity, object>>[] includeProperties)
         {
             var queryable = GetAll();
@@ -332,30 +330,30 @@ namespace GenericRepository.EntityFramework
             {
                 queryable = queryable.Take(take.Value);
             }
-            return queryable.ToListAsync();
+            return await queryable.ToListAsync();
         }
 
         public int Count()
         {
-            return _dbContext.Set<TEntity>().Count();
+            return GetAll().Count();
         }
 
-        public Task<int> CountAsync()
+        public async Task<int> CountAsync()
         {
-            return _dbContext.Set<TEntity>().CountAsync();
+            return await GetAll().CountAsync();
         }
 
         public int Count(Expression<Func<TEntity, bool>> match)
         {
-            return _dbContext.Set<TEntity>().Where(match).Count();
+            return FindBy(match).Count();
         }
 
-        public Task<int> CountAsync(Expression<Func<TEntity, bool>> match)
+        public async Task<int> CountAsync(Expression<Func<TEntity, bool>> match)
         {
-            return _dbContext.Set<TEntity>().Where(match).CountAsync();
+            return await FindBy(match).CountAsync();
         }
 
-        public Task<List<TEntity>> FindAllIncludingAsync<TKey>(Expression<Func<TEntity, bool>> match, int? take, int? skip, Expression<Func<TEntity, TKey>> keySelector, OrderByType orderByType,
+        public async Task<List<TEntity>> FindAllIncludingAsync<TKey>(Expression<Func<TEntity, bool>> match, int? take, int? skip, Expression<Func<TEntity, TKey>> keySelector, OrderByType orderByType,
                                                 params Expression<Func<TEntity, object>>[] includeProperties)
         {
             var queryable = _dbContext.Set<TEntity>().Where(match);
@@ -374,7 +372,7 @@ namespace GenericRepository.EntityFramework
             {
                 queryable = queryable.Take(take.Value);
             }
-            return queryable.ToListAsync();
+            return await queryable.ToListAsync();
         }
 
         // Privates
