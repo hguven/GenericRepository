@@ -44,6 +44,9 @@ namespace GenericRepository.EntityFramework
         Task<List<TEntity>> GetAllAsync();
         Task<TEntity> FindAsync(Expression<Func<TEntity, bool>> match);
         Task<List<TEntity>> FindAllAsync<TKey>(Expression<Func<TEntity, bool>> match, Expression<Func<TEntity, TKey>> keySelector, OrderByType orderByType, int? take, int ? skip);
+
+        List<TEntity> FindAll<TKey>(Expression<Func<TEntity, bool>> match, Expression<Func<TEntity, TKey>> keySelector,
+                                    OrderByType orderByType, int? take, int? skip);
         Task<List<TEntity>> FindAllAsync<TKey>(Expression<Func<TEntity, bool>> match, Expression<Func<TEntity, TKey>> keySelector, OrderByType orderByType, int page, int pageSize);
         Task<TEntity> AddAsync(TEntity t);
         Task<TEntity> EditAsync(TEntity updated, TId id);

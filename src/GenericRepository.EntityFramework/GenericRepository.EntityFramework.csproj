@@ -57,6 +57,7 @@
     <Compile Include="..\Common\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="DbContextFactory.cs" />
     <Compile Include="EntitiesContext.cs" />
     <Compile Include="Enums\OrderByType.cs" />
     <Compile Include="IEntitiesContext.cs" />

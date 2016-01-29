@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Linq.Expressions;
@@ -22,6 +23,7 @@ namespace GenericRepository.EntityFramework
     {
 
         private readonly IEntitiesContext _dbContext;
+         
 
         public EntityRepository(IEntitiesContext dbContext)
         {
@@ -249,8 +251,23 @@ namespace GenericRepository.EntityFramework
 
         public async Task<List<TEntity>> FindAllAsync<TKey>(Expression<Func<TEntity, bool>> match, Expression<Func<TEntity, TKey>> keySelector, OrderByType orderByType, int? take, int? skip)
         {
+            var queryable = FindAllQueryable(match, keySelector, orderByType, take, skip);
+            return await queryable.ToListAsync();
+        }
+
+        public List<TEntity> FindAll<TKey>(Expression<Func<TEntity, bool>> match, Expression<Func<TEntity, TKey>> keySelector, OrderByType orderByType, int? take, int? skip)
+        {
+            var queryable = FindAllQueryable(match, keySelector, orderByType, take, skip);
+            return  queryable.ToList();
+        }
+
+        private IQueryable<TEntity> FindAllQueryable<TKey>(Expression<Func<TEntity, bool>> match, Expression<Func<TEntity, TKey>> keySelector, OrderByType orderByType, int? take,
+                                                  int? skip)
+        {
             var queryable = FindBy(match);
-            queryable = (orderByType == OrderByType.Ascending) ? queryable.OrderBy(keySelector) : queryable.OrderByDescending(keySelector);
+            queryable = (orderByType == OrderByType.Ascending)
+                            ? queryable.OrderBy(keySelector)
+                            : queryable.OrderByDescending(keySelector);
             if (skip.HasValue && skip.Value > 0)
             {
                 queryable = queryable.Skip(skip.Value);
@@ -259,7 +276,7 @@ namespace GenericRepository.EntityFramework
             {
                 queryable = queryable.Take(take.Value);
             }
-            return await queryable.ToListAsync();
+            return queryable;
         }
 
 
