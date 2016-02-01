@@ -219,6 +219,8 @@ namespace GenericRepository.EntityFramework
             return await queryable.ToListAsync();
         }
 
+      
+
         public bool Contains(Expression<Func<TEntity, bool>> predicate)
         {
             return GetAll().Count<TEntity>(predicate) > 0;
@@ -370,15 +372,30 @@ namespace GenericRepository.EntityFramework
             return await FindBy(match).CountAsync();
         }
 
+        public List<TEntity> FindAllIncluding<TKey>(Expression<Func<TEntity, bool>> match, int? take, int? skip, Expression<Func<TEntity, TKey>> keySelector, OrderByType orderByType,
+                                         params Expression<Func<TEntity, object>>[] includeProperties)
+        {
+            var queryable = FindAllIncludingQueryable(match, take, skip, keySelector, orderByType, includeProperties);
+            return queryable.ToList();
+        }
+
         public async Task<List<TEntity>> FindAllIncludingAsync<TKey>(Expression<Func<TEntity, bool>> match, int? take, int? skip, Expression<Func<TEntity, TKey>> keySelector, OrderByType orderByType,
                                                 params Expression<Func<TEntity, object>>[] includeProperties)
         {
+            var queryable = FindAllIncludingQueryable(match, take, skip, keySelector, orderByType, includeProperties);
+            return await queryable.ToListAsync();
+        }
+
+        private IQueryable<TEntity> FindAllIncludingQueryable<TKey>(Expression<Func<TEntity, bool>> match, int? take, int? skip, Expression<Func<TEntity, TKey>> keySelector,
+                                                           OrderByType orderByType, Expression<Func<TEntity, object>>[] includeProperties)
+        {
             var queryable = _dbContext.Set<TEntity>().Where(match);
-            queryable = (orderByType == OrderByType.Ascending) ? queryable.OrderBy(keySelector) : queryable.OrderByDescending(keySelector);
+            queryable = (orderByType == OrderByType.Ascending)
+                            ? queryable.OrderBy(keySelector)
+                            : queryable.OrderByDescending(keySelector);
 
             foreach (Expression<Func<TEntity, object>> includeProperty in includeProperties)
             {
-
                 queryable = queryable.Include<TEntity, object>(includeProperty);
             }
             if (skip.HasValue && skip.Value > 0)
@@ -389,7 +406,7 @@ namespace GenericRepository.EntityFramework
             {
                 queryable = queryable.Take(take.Value);
             }
-            return await queryable.ToListAsync();
+            return queryable;
         }
 
         // Privates
