@@ -200,26 +200,7 @@ namespace GenericRepository.EntityFramework
             return await queryable.FirstOrDefaultAsync();
         }
 
-
-        public async Task<List<TEntity>> FindAllIncludingAsync<TKey>(Expression<Func<TEntity, bool>> match, int page, int pageSize, Expression<Func<TEntity, TKey>> keySelector,
-                                                OrderByType orderByType, params Expression<Func<TEntity, object>>[] includeProperties)
-        {
-            var queryable = FindBy(match);
-            queryable = (orderByType == OrderByType.Ascending) ? queryable.OrderBy(keySelector) : queryable.OrderByDescending(keySelector);
-            foreach (Expression<Func<TEntity, object>> includeProperty in includeProperties)
-            {
-                queryable = queryable.Include<TEntity, object>(includeProperty);
-            }
-            if (page > 0)
-            {
-                if (page == 0) page = 1;
-                int skip = (page - 1) * pageSize;
-                queryable = queryable.Skip(skip).Take(pageSize);
-            }
-            return await queryable.ToListAsync();
-        }
-
-      
+ 
 
         public bool Contains(Expression<Func<TEntity, bool>> predicate)
         {
@@ -375,19 +356,29 @@ namespace GenericRepository.EntityFramework
         public List<TEntity> FindAllIncluding<TKey>(Expression<Func<TEntity, bool>> match, int? take, int? skip, Expression<Func<TEntity, TKey>> keySelector, OrderByType orderByType,
                                          params Expression<Func<TEntity, object>>[] includeProperties)
         {
-            var queryable = FindAllIncludingQueryable(match, take, skip, keySelector, orderByType, includeProperties);
+            var queryable = _dbContext.Set<TEntity>().Where(match);
+            queryable = (orderByType == OrderByType.Ascending)
+                            ? queryable.OrderBy(keySelector)
+                            : queryable.OrderByDescending(keySelector);
+
+            foreach (Expression<Func<TEntity, object>> includeProperty in includeProperties)
+            {
+                queryable = queryable.Include<TEntity, object>(includeProperty);
+            }
+            if (skip.HasValue && skip.Value > 0)
+            {
+                queryable = queryable.Skip(skip.Value);
+            }
+            if (take.HasValue && take.Value > 0)
+            {
+                queryable = queryable.Take(take.Value);
+            }
+
             return queryable.ToList();
         }
 
         public async Task<List<TEntity>> FindAllIncludingAsync<TKey>(Expression<Func<TEntity, bool>> match, int? take, int? skip, Expression<Func<TEntity, TKey>> keySelector, OrderByType orderByType,
                                                 params Expression<Func<TEntity, object>>[] includeProperties)
-        {
-            var queryable = FindAllIncludingQueryable(match, take, skip, keySelector, orderByType, includeProperties);
-            return await queryable.ToListAsync();
-        }
-
-        private IQueryable<TEntity> FindAllIncludingQueryable<TKey>(Expression<Func<TEntity, bool>> match, int? take, int? skip, Expression<Func<TEntity, TKey>> keySelector,
-                                                           OrderByType orderByType, Expression<Func<TEntity, object>>[] includeProperties)
         {
             var queryable = _dbContext.Set<TEntity>().Where(match);
             queryable = (orderByType == OrderByType.Ascending)
@@ -406,8 +397,11 @@ namespace GenericRepository.EntityFramework
             {
                 queryable = queryable.Take(take.Value);
             }
-            return queryable;
+ 
+            return await queryable.ToListAsync();
         }
+
+      
 
         // Privates
 
