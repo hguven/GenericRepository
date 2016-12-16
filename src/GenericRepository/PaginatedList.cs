@@ -7,7 +7,8 @@ namespace GenericRepository {
     /// List object to represent the paginated collection.
     /// </summary>
     /// <typeparam name="T">Type of the Entity</typeparam>
-    public class PaginatedList<T> : List<T> {
+    public class PaginatedList<T> : List<T>, IPaginatedList
+    {
 
         public int PageIndex { get; private set; }
         public int PageSize { get; private set; }
@@ -44,5 +45,14 @@ namespace GenericRepository {
             TotalCount = totalCount;
             TotalPageCount = (int)Math.Ceiling(totalCount / (double)pageSize);
         }
+    }
+    public interface IPaginatedList
+    {
+        int TotalPageCount { get; }
+        int PageIndex { get; }
+        int PageSize { get; }
+        int TotalCount { get; }
+        bool HasPreviousPage { get; }
+        bool HasNextPage { get; }
     }
 }
